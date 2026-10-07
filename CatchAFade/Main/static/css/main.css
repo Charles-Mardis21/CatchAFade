@@ -1,0 +1,577 @@
+/* ------------------------------
+   GLOBAL
+------------------------------ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #ffffff;
+    color: #111111;
+}
+
+a {
+    text-decoration: none;
+}
+
+button {
+    font-family: inherit;
+}
+
+
+/* ------------------------------
+   COLOR PALETTE
+
+   Navy:  #02001f
+   Red:   #a20c08
+   Gold:  #f5dc73
+   White: #ffffff
+------------------------------ */
+
+
+/* ------------------------------
+   NAVBAR
+------------------------------ */
+
+.navbar {
+    height: 90px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 6%;
+
+    background: #02001f;
+
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    border-bottom: 3px solid #a20c08;
+}
+
+.nav-logo {
+    height: 75px;
+    margin-right: auto;
+}
+
+.nav-logo img {
+    height: 100%;
+    width: auto;
+    display: block;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+
+    margin-right: 45px;
+}
+
+.nav-links a {
+    color: #ffffff;
+
+    font-size: 0.85rem;
+    font-weight: 700;
+
+    letter-spacing: 2px;
+
+    transition: color 0.2s ease;
+}
+
+.nav-links a:hover {
+    color: #f5dc73;
+}
+
+
+/* BOOK BUTTON */
+
+.nav-book-button {
+    background: #b3120d;
+    color: #ffffff;
+
+    padding: 16px 30px;
+
+    font-weight: 800;
+    letter-spacing: 1.5px;
+
+    border: 2px solid #b3120d;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.nav-book-button:hover {
+    background: #d01812;
+    transform: translateY(-2px);
+}
+
+
+/* ------------------------------
+   HERO / CAROUSEL
+------------------------------ */
+
+.hero {
+    width: 100%;
+}
+
+.carousel {
+    position: relative;
+
+    width: 100%;
+    height: calc(100vh - 90px);
+
+    min-height: 650px;
+
+    overflow: hidden;
+
+    background: #02001f;
+}
+
+
+/* INDIVIDUAL SLIDES */
+
+.slide {
+    position: absolute;
+
+    inset: 0;
+
+    opacity: 0;
+
+    transition: opacity 1.2s ease;
+}
+
+.slide.active {
+    opacity: 1;
+}
+
+.slide img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+
+/* DARK OVERLAY */
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(2, 0, 31, 0.90) 0%,
+            rgba(2, 0, 31, 0.62) 45%,
+            rgba(2, 0, 31, 0.15) 100%
+        );
+
+    z-index: 2;
+}
+
+
+/* HERO TEXT */
+
+.hero-content {
+    position: absolute;
+
+    top: 50%;
+    left: 10%;
+
+    transform: translateY(-50%);
+
+    z-index: 3;
+
+    color: #ffffff;
+
+    max-width: 650px;
+}
+
+.hero-logo {
+    width: 220px;
+
+    margin-bottom: 25px;
+}
+
+.hero-content h1 {
+    font-size: clamp(3rem, 6vw, 6rem);
+
+    line-height: 0.95;
+
+    letter-spacing: -2px;
+
+    margin-bottom: 25px;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+
+    line-height: 1.7;
+
+    max-width: 520px;
+
+    color: #eeeeee;
+
+    margin-bottom: 35px;
+}
+
+
+/* HERO BOOK BUTTON */
+
+.hero-book-button {
+    display: inline-block;
+
+    background: #b3120d;
+    color: #ffffff;
+
+    padding: 18px 34px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+    border: 2px solid #b3120d;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.hero-book-button:hover {
+    background: #d01812;
+
+    transform: translateY(-3px);
+}
+
+
+/* ------------------------------
+   CAROUSEL CONTROLS
+------------------------------ */
+
+.carousel-button {
+    position: absolute;
+
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    z-index: 5;
+
+    width: 55px;
+    height: 75px;
+
+    border: none;
+
+    background: rgba(2, 0, 31, 0.35);
+
+    color: rgba(255, 255, 255, 0.75);
+
+    font-size: 2rem;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.carousel-button:hover {
+    background: rgba(2, 0, 31, 0.7);
+
+    color: #ffffff;
+}
+
+.previous {
+    left: 20px;
+}
+
+.next {
+    right: 20px;
+}
+
+
+/* DOTS */
+
+.carousel-dots {
+    position: absolute;
+
+    bottom: 25px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    z-index: 5;
+
+    display: flex;
+
+    gap: 10px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(255, 255, 255, 0.8);
+
+    background: transparent;
+
+    cursor: pointer;
+}
+
+.dot.active {
+    background: #ffffff;
+}
+
+
+/* ------------------------------
+   SECTIONS
+------------------------------ */
+
+.section-container {
+    max-width: 1100px;
+
+    margin: 0 auto;
+
+    padding: 110px 30px;
+
+    text-align: center;
+}
+
+.section-label {
+    display: block;
+
+    color: #a20c08;
+
+    font-size: 0.8rem;
+
+    font-weight: 800;
+
+    letter-spacing: 4px;
+
+    margin-bottom: 15px;
+}
+
+.section-label.light {
+    color: #f5dc73;
+}
+
+.section-container h2 {
+    font-size: clamp(2.4rem, 5vw, 4rem);
+
+    margin-bottom: 20px;
+}
+
+.section-line {
+    width: 65px;
+    height: 4px;
+
+    background: #a20c08;
+
+    margin: 0 auto 35px;
+}
+
+
+/* ------------------------------
+   ABOUT
+------------------------------ */
+
+.about {
+    background: #ffffff;
+}
+
+.about p {
+    max-width: 760px;
+
+    margin: 0 auto 20px;
+
+    line-height: 1.8;
+
+    color: #555555;
+
+    font-size: 1.05rem;
+}
+
+.secondary-button {
+    display: inline-block;
+
+    margin-top: 25px;
+
+    padding: 16px 28px;
+
+    border: 2px solid #02001f;
+
+    color: #02001f;
+
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+
+    transition: all 0.2s ease;
+}
+
+.secondary-button:hover {
+    background: #02001f;
+
+    color: #ffffff;
+}
+
+
+/* ------------------------------
+   CONTACT
+------------------------------ */
+
+.contact {
+    background: #02001f;
+    color: #ffffff;
+}
+
+.contact .section-line {
+    background: #a20c08;
+}
+
+.contact-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 50px;
+
+    margin: 55px 0;
+}
+
+.contact-item h3 {
+    color: #f5dc73;
+
+    font-size: 0.8rem;
+
+    letter-spacing: 3px;
+
+    margin-bottom: 15px;
+}
+
+.contact-item p,
+.contact-item a {
+    color: #ffffff;
+
+    line-height: 1.7;
+}
+
+
+/* ------------------------------
+   FOOTER
+------------------------------ */
+
+footer {
+    background: #010018;
+
+    color: #888888;
+
+    text-align: center;
+
+    padding: 45px 20px;
+}
+
+footer img {
+    width: 130px;
+
+    margin-bottom: 20px;
+
+    opacity: 0.85;
+}
+
+footer p {
+    font-size: 0.8rem;
+
+    letter-spacing: 1px;
+}
+
+
+/* ------------------------------
+   MOBILE
+------------------------------ */
+
+@media (max-width: 768px) {
+
+    .navbar {
+        height: 75px;
+
+        padding: 0 20px;
+    }
+
+    .nav-logo {
+        height: 60px;
+    }
+
+    .nav-links {
+        display: none;
+    }
+
+    .nav-book-button {
+        padding: 12px 18px;
+
+        font-size: 0.75rem;
+    }
+
+
+    .carousel {
+        height: 75vh;
+
+        min-height: 550px;
+    }
+
+    .hero-content {
+        left: 8%;
+        right: 8%;
+    }
+
+    .hero-logo {
+        width: 160px;
+    }
+
+    .hero-content h1 {
+        font-size: 3rem;
+    }
+
+    .hero-content p {
+        font-size: 1rem;
+    }
+
+    .carousel-button {
+        width: 40px;
+        height: 60px;
+
+        font-size: 1.5rem;
+    }
+
+    .previous {
+        left: 5px;
+    }
+
+    .next {
+        right: 5px;
+    }
+
+
+    .section-container {
+        padding: 80px 25px;
+    }
+
+    .contact-grid {
+        grid-template-columns: 1fr;
+
+        gap: 35px;
+    }
+}
