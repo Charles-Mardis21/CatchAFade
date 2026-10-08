@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Barber Login | Catch A Fade</title>
+
+    <link rel="stylesheet"
+          href="{% static 'booking/login.css' %}">
+</head>
+
+<body>
+    <main class="login-container">
+        <div class="login-card">
+
+            <h1>CATCH A FADE</h1>
+            <p class="subtitle">Barber Dashboard</p>
+
+            <h2>Welcome Back</h2>
+            <p class="description">
+                Sign in to manage your appointments.
+            </p>
+
+            {% if form.errors %}
+                <p class="error-message">
+                    Invalid username or password.
+                </p>
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <label for="id_username">Username</label>
+                <input
+                    type="text"
+                    name="username"
+                    id="id_username"
+                    autocomplete="username"
+                    required
+                >
+
+                <label for="id_password">Password</label>
+                <input
+                    type="password"
+                    name="password"
+                    id="id_password"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <input
+                    type="hidden"
+                    name="next"
+                    value="{{ next }}"
+                >
+
+                <button type="submit">
+                    Sign In
+                </button>
+            </form>
+
+            <p class="footer-text">
+                Catch A Fade • Staff Access
+            </p>
+
+        </div>
+    </main>
+</body>
+</html>

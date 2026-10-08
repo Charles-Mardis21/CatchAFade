@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Barber Dashboard | Catch A Fade</title>
+
+    <link rel="stylesheet" href="{% static 'booking/dashboard.css' %}">
+</head>
+<body>
+
+    <header class="dashboard-header">
+        <div class="brand">
+            <h1>CATCH A FADE</h1>
+            <span>BARBER DASHBOARD</span>
+        </div>
+
+        <div class="header-actions">
+            <span>Welcome, {{ barber.name }}</span>
+
+            <form method="POST" action="{% url 'booking:logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">Log Out</button>
+            </form>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+
+        <section class="page-heading">
+            <h2>Overview</h2>
+            <p>Manage your appointments and daily schedule.</p>
+        </section>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <span>Today's Appointments</span>
+                <h3>{{ today_count }}</h3>
+            </div>
+
+            <div class="stat-card">
+                <span>Upcoming Appointments</span>
+                <h3>{{ upcoming_count }}</h3>
+            </div>
+
+            <div class="stat-card">
+                <span>Completed Today</span>
+                <h3>{{ completed_count }}</h3>
+            </div>
+        </section>
+
+        <section class="appointments-section">
+            <div class="section-heading">
+                <h2>Today's Schedule</h2>
+                <span>{% now "F j, Y" %}</span>
+            </div>
+
+            {% for appointment in todays_appointments %}
+                <div class="appointment-card">
+                    <div class="appointment-time">
+                        {{ appointment.start_time|date:"g:i A" }}
+                    </div>
+
+                    <div class="appointment-details">
+                        <h3>{{ appointment.customer_name }}</h3>
+                        <p>{{ appointment.service.name }}</p>
+                    </div>
+
+                    <div class="appointment-actions">
+
+                        <div class="appointment-status">
+                            {{ appointment.get_status_display }}
+                        </div>
+                    
+                        {% if appointment.status == "confirmed" %}
+                    
+                            <form
+                                method="POST"
+                                action="{% url 'booking:complete_appointment' appointment.id %}"
+                            >
+                                {% csrf_token %}
+                    
+                                <button type="submit" class="complete-btn">
+                                    Complete Appointment
+                                </button>
+                            </form>
+                    
+                        {% endif %}
+                    
+                    </div>
+                </div>
+            {% empty %}
+                <div class="empty-state">
+                    No appointments scheduled for today.
+                </div>
+            {% endfor %}
+        </section>
+
+        <section class="appointments-section">
+            <div class="section-heading">
+                <h2>Upcoming Appointments</h2>
+            </div>
+
+            {% for appointment in upcoming_appointments %}
+                <div class="appointment-card">
+                    <div class="appointment-time">
+                        {{ appointment.start_time|date:"M j, g:i A" }}
+                    </div>
+
+                    <div class="appointment-details">
+                        <h3>{{ appointment.customer_name }}</h3>
+                        <p>{{ appointment.service.name }}</p>
+                    </div>
+
+                    <div class="appointment-status">
+                        {{ appointment.get_status_display }}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="empty-state">
+                    No upcoming appointments.
+                </div>
+            {% endfor %}
+        </section>
+
+    </main>
+
+</body>
+</html>

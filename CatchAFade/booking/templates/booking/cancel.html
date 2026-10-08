@@ -1,0 +1,57 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancel Appointment | Catch A Fade</title>
+    <link rel="stylesheet" href="{% static 'booking/booking.css' %}">
+</head>
+<body>
+    <main class="booking-container">
+        <div class="booking-header">
+            <h1>Catch A Fade</h1>
+            <p>Appointment Management</p>
+        </div>
+
+        <section class="booking-section">
+            {% if appointment.status == "cancelled" %}
+                <h2>Appointment Cancelled</h2>
+                <p>Your appointment has been cancelled.</p>
+
+            {% elif cancelled %}
+                <h2>Unable to Cancel</h2>
+                <p>This appointment can no longer be cancelled online.</p>
+
+            {% else %}
+                <h2>Cancel Your Appointment</h2>
+
+                <p>Please review your appointment before cancelling.</p>
+
+                <div class="appointment-details">
+                    <p><strong>Barber:</strong> {{ appointment.barber.name }}</p>
+                    <p><strong>Service:</strong> {{ appointment.service.name }}</p>
+                    <p><strong>Date:</strong> {{ appointment.start_time|date:"F j, Y" }}</p>
+                    <p><strong>Time:</strong> {{ appointment.start_time|date:"g:i A" }}</p>
+                </div>
+
+                {% if appointment.status == "confirmed" or appointment.status == "pending" %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="submit-button">
+                            Confirm Cancellation
+                        </button>
+                    </form>
+                {% endif %}
+            {% endif %}
+
+            <p>
+                <a href="{% url 'booking:book' %}">
+                    Book Another Appointment
+                </a>
+            </p>
+        </section>
+    </main>
+</body>
+</html>

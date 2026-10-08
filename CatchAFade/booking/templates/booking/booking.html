@@ -1,0 +1,195 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Book Now | Catch A Fade</title>
+    <link rel="stylesheet" href="{% static 'booking/booking.css' %}">
+    <script src="{% static 'booking/booking.js' %}" defer></script>
+</head>
+<body>
+
+<header class="site-header">
+    <a href="/" class="brand">CATCH <span>A</span> FADE</a>
+    <a href="/" class="back-link">← Back to Home</a>
+</header>
+
+<main class="booking-container">
+
+    <div class="page-heading">
+        <p class="eyebrow">THE EXPERIENCE</p>
+        <h1>BOOK YOUR <span>APPOINTMENT</span></h1>
+        <p>Choose your barber, find your time, and get fresh.</p>
+    </div>
+
+    <div class="steps">
+        <span class="step active">01 Barber</span>
+        <span class="step">02 Service</span>
+        <span class="step">03 Date & Time</span>
+        <span class="step">04 Details</span>
+    </div>
+
+    <form id="booking-form"
+        data-availability-url="{% url 'booking:available_times' %}"
+        action="{% url 'booking:confirm_booking' %}"
+        method="post">
+
+        {% csrf_token %}
+
+        <section class="booking-section">
+            <div class="section-heading">
+                <span>01</span>
+                <h2>Choose Your Barber</h2>
+            </div>
+
+            <div class="barber-grid">
+                {% for barber in barbers %}
+                <label class="selection-card barber-card">
+                    <input type="radio"
+                           name="barber"
+                           value="{{ barber.id }}"
+                           required>
+                    <div class="barber-avatar">
+                        {{ barber.name|slice:":1" }}
+                    </div>
+                    <h3>{{ barber.name }}</h3>
+                    <p>Professional Barber</p>
+                </label>
+                {% empty %}
+                <p>No barbers are available.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="booking-section">
+            <div class="section-heading">
+                <span>02</span>
+                <h2>Select Your Service</h2>
+            </div>
+
+            <div class="service-grid">
+                {% for service in services %}
+                <label class="selection-card service-card">
+                    <input type="radio"
+                           name="service"
+                           value="{{ service.id }}"
+                           data-duration="{{ service.duration }}"
+                           required>
+                    <div>
+                        <h3>{{ service.name }}</h3>
+                        <p>{{ service.duration }} minutes</p>
+                    </div>
+                    <strong>${{ service.price }}</strong>
+                </label>
+                {% empty %}
+                <p>No services are available.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="booking-section">
+            <div class="section-heading">
+                <span>03</span>
+                <h2>Choose Date & Time</h2>
+            </div>
+
+            <label for="appointment-date">Appointment Date</label>
+            <input type="date"
+                   id="appointment-date"
+                   name="date"
+                   required>
+
+            <h3 class="time-heading">Available Times</h3>
+            <p id="slot-message">
+                Select a barber, service, and date.
+            </p>
+
+            <div id="time-slots" class="time-grid"></div>
+
+            <input type="hidden"
+                   name="start_time"
+                   id="selected-time">
+        </section>
+
+        <section class="booking-section">
+            <div class="section-heading">
+                <span>04</span>
+                <h2>Your Information</h2>
+            </div>
+
+            <div class="customer-fields">
+                <label>
+                    Full Name
+                    <input type="text"
+                           name="customer_name"
+                           placeholder="Your full name"
+                           maxlength="100"
+                           required>
+                </label>
+
+                <label>
+                    Phone Number
+                    <input type="tel"
+                           name="customer_phone"
+                           placeholder="(555) 555-5555"
+                           maxlength="20"
+                           required>
+                </label>
+
+                <label>
+                    Email (Optional)
+                    <input type="email"
+                           name="customer_email"
+                           placeholder="you@example.com">
+                </label>
+
+                <label class="sms-consent">
+                    <input
+                        type="checkbox"
+                        name="sms_consent"
+                        value="on"
+                    >
+                    <span>
+                        I agree to receive appointment confirmations
+                        and reminders by text from Catch A Fade.
+                        Message and data rates may apply.
+                        Reply STOP to opt out.
+                        Consent is optional.
+                    </span>
+                </label>
+            </div>
+        </section>
+
+        <div class="booking-footer">
+            <p id="booking-summary">
+                Select your appointment details above.
+            </p>
+            <button type="submit" id="book-button">
+                Confirm Appointment →
+            </button>
+            <p id="form-message" role="status"></p>
+        </div>
+
+    </form>
+    <div id="booking-success" class="booking-success" hidden>
+        <h2>Appointment Confirmed!</h2>
+        <p>Your appointment has been successfully booked.</p>
+    
+        <a id="reschedule-appointment-btn" class="reschedule-button" href="#">
+            Reschedule Appointment
+        </a>
+
+        <a id="cancel-appointment-btn" class="cancel-button" href="#">
+            Cancel Appointment
+        </a>
+    </div>
+</main>
+
+<footer>
+    <p>© Catch A Fade. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
