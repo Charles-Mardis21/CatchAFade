@@ -1,116 +1,93 @@
-const slides = document.querySelectorAll(".slide");
-const dots = document.querySelectorAll(".dot");
 
-const nextButton = document.querySelector(".next");
-const previousButton = document.querySelector(".previous");
+document.addEventListener("DOMContentLoaded", () => {
+    const slides = document.querySelectorAll(".slide");
+    const nextButton = document.querySelector(".next");
+    const previousButton = document.querySelector(".previous");
 
-let currentSlide = 0;
-let autoPlay;
+    // Change this selector if your dots container
+    // has a different class in your HTML.
+    const dotsContainer = document.querySelector(".carousel-dots");
 
+    if (!slides.length) return;
 
-/*
-    Displays whichever slide number we give it.
-*/
-function showSlide(index) {
+    let currentSlide = 0;
+    let autoPlay;
 
-    slides.forEach(slide => {
-        slide.classList.remove("active");
-    });
+    // Automatically generate one dot per slide.
+    if (dotsContainer) {
+        dotsContainer.replaceChildren();
 
-    dots.forEach(dot => {
-        dot.classList.remove("active");
-    });
+        slides.forEach((slide, index) => {
+            const dot = document.createElement("button");
 
-    slides[index].classList.add("active");
-    dots[index].classList.add("active");
+            dot.type = "button";
+            dot.className = "dot";
+            dot.setAttribute(
+                "aria-label",
+                `Go to slide ${index + 1}`
+            );
 
-}
+            dot.addEventListener("click", () => {
+                showSlide(index);
+                resetAutoPlay();
+            });
 
-
-/*
-    Move forward one slide.
-*/
-function nextSlide() {
-
-    currentSlide++;
-
-    if (currentSlide >= slides.length) {
-        currentSlide = 0;
+            dotsContainer.appendChild(dot);
+        });
     }
 
-    showSlide(currentSlide);
-}
+    const dots = dotsContainer
+        ? dotsContainer.querySelectorAll(".dot")
+        : [];
 
+    function showSlide(index) {
+        currentSlide =
+            (index + slides.length) % slides.length;
 
-/*
-    Move backward one slide.
-*/
-function previousSlide() {
+        slides.forEach((slide, i) => {
+            slide.classList.toggle(
+                "active",
+                i === currentSlide
+            );
+        });
 
-    currentSlide--;
-
-    if (currentSlide < 0) {
-        currentSlide = slides.length - 1;
+        dots.forEach((dot, i) => {
+            dot.classList.toggle(
+                "active",
+                i === currentSlide
+            );
+        });
     }
 
-    showSlide(currentSlide);
-}
+    function nextSlide() {
+        showSlide(currentSlide + 1);
+    }
 
+    function previousSlide() {
+        showSlide(currentSlide - 1);
+    }
 
-/*
-    Automatically move every 5 seconds.
-*/
-function startAutoPlay() {
+    function startAutoPlay() {
+        if (slides.length <= 1) return;
 
-    autoPlay = setInterval(nextSlide, 5000);
+        autoPlay = setInterval(nextSlide, 5000);
+    }
 
-}
+    function resetAutoPlay() {
+        clearInterval(autoPlay);
+        startAutoPlay();
+    }
 
-
-/*
-    Reset timer when the user manually
-    changes the picture.
-*/
-function resetAutoPlay() {
-
-    clearInterval(autoPlay);
-
-    startAutoPlay();
-
-}
-
-
-nextButton.addEventListener("click", () => {
-
-    nextSlide();
-
-    resetAutoPlay();
-
-});
-
-
-previousButton.addEventListener("click", () => {
-
-    previousSlide();
-
-    resetAutoPlay();
-
-});
-
-
-dots.forEach((dot, index) => {
-
-    dot.addEventListener("click", () => {
-
-        currentSlide = index;
-
-        showSlide(currentSlide);
-
+    nextButton?.addEventListener("click", () => {
+        nextSlide();
         resetAutoPlay();
-
     });
 
+    previousButton?.addEventListener("click", () => {
+        previousSlide();
+        resetAutoPlay();
+    });
+
+    showSlide(0);
+    startAutoPlay();
 });
-
-
-startAutoPlay();

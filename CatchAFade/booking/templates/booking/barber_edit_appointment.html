@@ -1,0 +1,138 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Appointment | Catch A Fade</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'booking/appointment-management.css' %}?v=2"
+    >
+</head>
+<body>
+
+    <header class="management-header">
+        <h1>CATCH A FADE</h1>
+        <p>Barber Dashboard</p>
+    </header>
+
+    <main class="management-container">
+
+        <div class="management-heading">
+            <h2>Edit Appointment</h2>
+            <p>Reschedule an existing customer appointment.</p>
+        </div>
+
+        <section class="management-card">
+
+            <div class="appointment-summary">
+                <h3>{{ appointment.customer_name }}</h3>
+
+                <p>
+                    <strong>Service:</strong>
+                    {{ appointment.service.name }}
+                </p>
+
+                <p>
+                    <strong>Current Date:</strong>
+                    {{ appointment.start_time|date:"F j, Y" }}
+                </p>
+
+                <p>
+                    <strong>Current Time:</strong>
+                    {{ appointment.start_time|date:"g:i A" }}
+                </p>
+
+                <p>
+                    <strong>Phone:</strong>
+                    <a href="tel:{{ appointment.customer_phone }}">
+                        {{ appointment.customer_phone }}
+                    </a>
+                </p>
+
+                {% if appointment.customer_email %}
+                    <p>
+                        <strong>Email:</strong>
+                        <a href="mailto:{{ appointment.customer_email }}">
+                            {{ appointment.customer_email }}
+                        </a>
+                    </p>
+                {% endif %}
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="{% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form
+                method="POST"
+                id="barber-reschedule-form"
+                data-availability-url="{% url 'booking:barber_available_times' appointment.id %}"
+            >
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="date">New Appointment Date</label>
+                    <input
+                        type="date"
+                        id="date"
+                        name="date"
+                        required
+                        value="{{ appointment.start_time|date:'Y-m-d' }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Available Times</label>
+                    <p id="slot-message" class="help-text">
+                        Checking availability...
+                    </p>
+                    <div id="time-slots" class="time-slots"></div>
+                </div>
+
+                <input
+                    type="hidden"
+                    name="time"
+                    id="selected-time"
+                    required
+                >
+
+                <div class="management-actions">
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        id="save-changes"
+                        disabled
+                    >
+                        Save Changes
+                    </button>
+
+                    <a
+                        href="{% url 'booking:dashboard' %}"
+                        class="btn btn-secondary"
+                    >
+                        Back to Dashboard
+                    </a>
+                </div>
+            </form>
+
+        </section>
+
+        <p class="management-footer">
+            Changes to appointments are reflected in your schedule.
+        </p>
+
+    </main>
+    <script
+    src="{% static 'booking/barber-reschedule.js' %}?v=1"
+    defer>
+    </script>
+</body>
+</html>

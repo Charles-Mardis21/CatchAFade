@@ -1,12 +1,11 @@
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Barber Dashboard | Catch A Fade</title>
-
     <link rel="stylesheet" href="{% static 'booking/dashboard.css' %}">
 </head>
 <body>
@@ -20,9 +19,19 @@
         <div class="header-actions">
             <span>Welcome, {{ barber.name }}</span>
 
+            <a href="{% url 'booking:working_hours' %}">
+                Working Hours
+            </a>
+
+            <a href="{% url 'booking:manage_time_off' %}">
+                Manage Time Off
+            </a>
+
             <form method="POST" action="{% url 'booking:logout' %}">
                 {% csrf_token %}
-                <button type="submit" class="logout-btn">Log Out</button>
+                <button type="submit" class="logout-btn">
+                    Log Out
+                </button>
             </form>
         </div>
     </header>
@@ -33,6 +42,14 @@
             <h2>Overview</h2>
             <p>Manage your appointments and daily schedule.</p>
         </section>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="dashboard-message">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
 
         <section class="stats-grid">
             <div class="stat-card">
@@ -51,6 +68,8 @@
             </div>
         </section>
 
+        <!-- TODAY'S APPOINTMENTS -->
+
         <section class="appointments-section">
             <div class="section-heading">
                 <h2>Today's Schedule</h2>
@@ -58,7 +77,8 @@
             </div>
 
             {% for appointment in todays_appointments %}
-                <div class="appointment-card">
+                <article class="appointment-card">
+
                     <div class="appointment-time">
                         {{ appointment.start_time|date:"g:i A" }}
                     </div>
@@ -66,31 +86,68 @@
                     <div class="appointment-details">
                         <h3>{{ appointment.customer_name }}</h3>
                         <p>{{ appointment.service.name }}</p>
+
+                        <div class="customer-contact">
+                            <p>
+                                <strong>Phone:</strong>
+                                <a href="tel:{{ appointment.customer_phone }}">
+                                    {{ appointment.customer_phone }}
+                                </a>
+                            </p>
+
+                            <p>
+                                <strong>Email:</strong>
+                                {% if appointment.customer_email %}
+                                    <a href="mailto:{{ appointment.customer_email }}">
+                                        {{ appointment.customer_email }}
+                                    </a>
+                                {% else %}
+                                    Not provided
+                                {% endif %}
+                            </p>
+                        </div>
                     </div>
+
+                    <span class="appointment-status">
+                        {{ appointment.get_status_display }}
+                    </span>
 
                     <div class="appointment-actions">
 
-                        <div class="appointment-status">
-                            {{ appointment.get_status_display }}
-                        </div>
-                    
-                        {% if appointment.status == "confirmed" %}
-                    
+                        {% if appointment.status == "confirmed" and appointment.start_time <= now %}
                             <form
                                 method="POST"
                                 action="{% url 'booking:complete_appointment' appointment.id %}"
                             >
                                 {% csrf_token %}
-                    
                                 <button type="submit" class="complete-btn">
                                     Complete Appointment
                                 </button>
                             </form>
-                    
                         {% endif %}
-                    
+
+                        {% if appointment.status == "pending" or appointment.status == "confirmed" %}
+                            <a
+                                href="{% url 'booking:barber_edit_appointment' appointment.id %}"
+                                class="edit-btn"
+                            >
+                                Edit / Reschedule
+                            </a>
+
+                            <form
+                                method="POST"
+                                action="{% url 'booking:barber_cancel_appointment' appointment.id %}"
+                                onsubmit="return confirm('Cancel this appointment?');"
+                            >
+                                {% csrf_token %}
+                                <button type="submit" class="cancel-btn">
+                                    Cancel Appointment
+                                </button>
+                            </form>
+                        {% endif %}
+
                     </div>
-                </div>
+                </article>
             {% empty %}
                 <div class="empty-state">
                     No appointments scheduled for today.
@@ -98,13 +155,16 @@
             {% endfor %}
         </section>
 
+        <!-- UPCOMING APPOINTMENTS -->
+
         <section class="appointments-section">
             <div class="section-heading">
                 <h2>Upcoming Appointments</h2>
             </div>
 
             {% for appointment in upcoming_appointments %}
-                <div class="appointment-card">
+                <article class="appointment-card">
+
                     <div class="appointment-time">
                         {{ appointment.start_time|date:"M j, g:i A" }}
                     </div>
@@ -112,12 +172,54 @@
                     <div class="appointment-details">
                         <h3>{{ appointment.customer_name }}</h3>
                         <p>{{ appointment.service.name }}</p>
+
+                        <div class="customer-contact">
+                            <p>
+                                <strong>Phone:</strong>
+                                <a href="tel:{{ appointment.customer_phone }}">
+                                    {{ appointment.customer_phone }}
+                                </a>
+                            </p>
+
+                            <p>
+                                <strong>Email:</strong>
+                                {% if appointment.customer_email %}
+                                    <a href="mailto:{{ appointment.customer_email }}">
+                                        {{ appointment.customer_email }}
+                                    </a>
+                                {% else %}
+                                    Not provided
+                                {% endif %}
+                            </p>
+                        </div>
                     </div>
 
-                    <div class="appointment-status">
+                    <span class="appointment-status">
                         {{ appointment.get_status_display }}
+                    </span>
+
+                    <div class="appointment-actions">
+                        {% if appointment.status == "pending" or appointment.status == "confirmed" %}
+                            <a
+                                href="{% url 'booking:barber_edit_appointment' appointment.id %}"
+                                class="edit-btn"
+                            >
+                                Edit / Reschedule
+                            </a>
+
+                            <form
+                                method="POST"
+                                action="{% url 'booking:barber_cancel_appointment' appointment.id %}"
+                                onsubmit="return confirm('Cancel this appointment?');"
+                            >
+                                {% csrf_token %}
+                                <button type="submit" class="cancel-btn">
+                                    Cancel Appointment
+                                </button>
+                            </form>
+                        {% endif %}
                     </div>
-                </div>
+                </article>
             {% empty %}
                 <div class="empty-state">
                     No upcoming appointments.
@@ -126,6 +228,5 @@
         </section>
 
     </main>
-
 </body>
 </html>

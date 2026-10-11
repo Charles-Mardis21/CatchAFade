@@ -1,5 +1,5 @@
 from django import forms
-from .models import Availability
+from .models import Availability, TimeOff
 
 
 class WorkingHoursForm(forms.ModelForm):
@@ -32,5 +32,27 @@ class WorkingHoursForm(forms.ModelForm):
                     "class": "form-input",
                 },
                 format="%H:%M",
+            ),
+        }
+
+
+class TimeOffForm(forms.ModelForm):
+    class Meta:
+        model = TimeOff
+        fields = ["start_time", "end_time", "reason"]
+        widgets = {
+            "start_time": forms.DateTimeInput(
+                attrs={"type": "datetime-local", "class": "form-input"},
+                format="%Y-%m-%dT%H:%M",
+            ),
+            "end_time": forms.DateTimeInput(
+                attrs={"type": "datetime-local", "class": "form-input"},
+                format="%Y-%m-%dT%H:%M",
+            ),
+            "reason": forms.TextInput(
+                attrs={
+                    "class": "form-input",
+                    "placeholder": "Optional reason for time off",
+                }
             ),
         }

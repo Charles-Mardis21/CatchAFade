@@ -1,0 +1,201 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Manage Time Off | Catch A Fade</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'booking/appointment-management.css' %}?v=3"
+    >
+</head>
+<body>
+
+    <header class="management-header">
+        <h1>CATCH A FADE</h1>
+        <p>Barber Dashboard</p>
+    </header>
+
+    <main class="management-container">
+
+        <div class="management-heading">
+            <h2>Manage Time Off</h2>
+            <p>
+                Welcome, {{ barber.name }}.
+                Manage your days off and unavailable hours.
+            </p>
+        </div>
+
+        <div class="management-navigation">
+            <a
+                href="{% url 'booking:dashboard' %}"
+                class="btn btn-secondary"
+            >
+                &larr; Back to Dashboard
+            </a>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="{% if 'error' in message.tags %}error-message{% else %}success-message{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- ADD TIME OFF -->
+
+        <section class="management-card time-off-section">
+
+            <div class="time-off-section-heading">
+                <h3>Add Time Off</h3>
+                <p>
+                    Block off a date or time range without
+                    changing your regular weekly working hours.
+                </p>
+            </div>
+
+            <form
+                method="POST"
+                action="{% url 'booking:add_time_off' %}"
+            >
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="error-message">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="{{ form.start_time.id_for_label }}">
+                        Start Date &amp; Time
+                    </label>
+
+                    {{ form.start_time }}
+
+                    {% if form.start_time.errors %}
+                        <div class="error-message">
+                            {{ form.start_time.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.end_time.id_for_label }}">
+                        End Date &amp; Time
+                    </label>
+
+                    {{ form.end_time }}
+
+                    {% if form.end_time.errors %}
+                        <div class="error-message">
+                            {{ form.end_time.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.reason.id_for_label }}">
+                        Reason (Optional)
+                    </label>
+
+                    {{ form.reason }}
+
+                    {% if form.reason.errors %}
+                        <div class="error-message">
+                            {{ form.reason.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="management-actions">
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Add Time Off
+                    </button>
+                </div>
+            </form>
+
+        </section>
+
+        <!-- UPCOMING TIME OFF -->
+
+        <section class="management-card time-off-section">
+
+            <div class="time-off-section-heading">
+                <h3>Upcoming Time Off</h3>
+                <p>
+                    These periods are unavailable for customer bookings.
+                </p>
+            </div>
+
+            {% for entry in time_off %}
+
+                <article class="time-off-entry">
+
+                    <div class="time-off-details">
+
+                        <span class="time-off-label">
+                            Scheduled Time Off
+                        </span>
+
+                        <p class="time-off-date">
+                            {{ entry.start_time|date:"M j, Y" }}
+                            at
+                            {{ entry.start_time|date:"g:i A" }}
+                        </p>
+
+                        <p class="time-off-to">to</p>
+
+                        <p class="time-off-date">
+                            {{ entry.end_time|date:"M j, Y" }}
+                            at
+                            {{ entry.end_time|date:"g:i A" }}
+                        </p>
+
+                        {% if entry.reason %}
+                            <p class="time-off-reason">
+                                {{ entry.reason }}
+                            </p>
+                        {% endif %}
+
+                    </div>
+
+                    <form
+                        method="POST"
+                        action="{% url 'booking:delete_time_off' entry.id %}"
+                        onsubmit="return confirm('Remove this time off?');"
+                    >
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="btn btn-danger"
+                        >
+                            Remove
+                        </button>
+                    </form>
+
+                </article>
+
+            {% empty %}
+
+                <div class="time-off-empty">
+                    <p>No upcoming time off scheduled.</p>
+                </div>
+
+            {% endfor %}
+
+        </section>
+
+    </main>
+
+</body>
+</html>

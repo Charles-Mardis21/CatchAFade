@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
-from .models import Barber, Service, Appointment, Availability
+from .models import Barber, Service, Appointment, Availability, TimeOff
 from .services import get_available_slots
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ValidationError
@@ -15,8 +15,9 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
-from .forms import WorkingHoursForm
+from .forms import WorkingHoursForm, TimeOffForm
 from django.db import transaction
+
 
 def booking_page(request):
     barbers = Barber.objects.filter(active=True)
@@ -239,9 +240,11 @@ def barber_dashboard(request):
         "completed_count": todays_appointments.filter(
             status="completed"
         ).count(),
+        "now": timezone.now(),
     }
 
     return render(
+        
         request,
         "booking/dashboard.html",
         context
@@ -522,3 +525,311 @@ def delete_working_hours(request, availability_id):
     )
 
     return redirect("booking:working_hours")
+
+
+@login_required
+def manage_time_off(request):
+    barber = get_object_or_404(
+        Barber,
+        user=request.user,
+        active=True
+    )
+
+    time_off = TimeOff.objects.filter(
+        barber=barber,
+        end_time__gte=timezone.now()
+    ).order_by("start_time")
+
+    form = TimeOffForm()
+
+    return render(request, "booking/time_off.html", {
+        "barber": barber,
+        "time_off": time_off,
+        "form": form,
+    })
+
+
+@login_required
+@require_POST
+def add_time_off(request):
+    barber = get_object_or_404(
+        Barber,
+        user=request.user,
+        active=True
+    )
+
+    form = TimeOffForm(request.POST)
+
+    if form.is_valid():
+        new_time_off = form.save(commit=False)
+        new_time_off.barber = barber
+
+        if new_time_off.start_time < timezone.now():
+            messages.error(
+                request,
+                "Time off cannot start in the past."
+            )
+        elif TimeOff.objects.filter(
+            barber=barber,
+            start_time__lt=new_time_off.end_time,
+            end_time__gt=new_time_off.start_time
+        ).exists():
+            messages.error(
+                request,
+                "This time off overlaps an existing entry."
+            )
+        elif Appointment.objects.filter(
+            barber=barber,
+            status__in=["pending", "confirmed"],
+            start_time__lt=new_time_off.end_time,
+            end_time__gt=new_time_off.start_time
+        ).exists():
+            messages.error(
+                request,
+                "You have existing appointments during this period."
+            )
+        else:
+            new_time_off.save()
+            messages.success(request, "Time off added successfully!")
+    else:
+        messages.error(
+            request,
+            "Invalid time off. Check your dates and times."
+        )
+
+    return redirect("manage_time_off")
+
+
+
+@login_required
+@require_POST
+def delete_time_off(request, time_off_id):
+    barber = get_object_or_404(
+        Barber,
+        user=request.user,
+        active=True
+    )
+
+    entry = get_object_or_404(
+        TimeOff,
+        pk=time_off_id,
+        barber=barber
+    )
+
+    entry.delete()
+
+    messages.success(
+        request,
+        "Time off removed successfully!"
+    )
+
+    return redirect("booking:manage_time_off")
+
+
+@login_required
+@require_POST
+@transaction.atomic
+def add_time_off(request):
+    barber = get_object_or_404(
+        Barber.objects.select_for_update(),
+        user=request.user,
+        active=True
+    )
+
+    form = TimeOffForm(request.POST)
+
+    if not form.is_valid():
+        messages.error(
+            request,
+            "Invalid time off. Check your start and end times."
+        )
+        return redirect("booking:manage_time_off")
+
+    new_time_off = form.save(commit=False)
+    new_time_off.barber = barber
+
+    if new_time_off.start_time < timezone.now():
+        messages.error(
+            request,
+            "Time off cannot start in the past."
+        )
+    elif TimeOff.objects.filter(
+        barber=barber,
+        start_time__lt=new_time_off.end_time,
+        end_time__gt=new_time_off.start_time
+    ).exists():
+        messages.error(
+            request,
+            "This time off overlaps an existing entry."
+        )
+    elif Appointment.objects.filter(
+        barber=barber,
+        status__in=["pending", "confirmed"],
+        start_time__lt=new_time_off.end_time,
+        end_time__gt=new_time_off.start_time
+    ).exists():
+        messages.error(
+            request,
+            "You already have appointments during this period."
+        )
+    else:
+        new_time_off.save()
+        messages.success(
+            request,
+            "Time off added successfully!"
+        )
+
+    return redirect("booking:manage_time_off")
+
+
+@login_required
+def barber_edit_appointment(request, appointment_id):
+    barber = get_object_or_404(
+        Barber,
+        user=request.user,
+        active=True
+    )
+
+    appointment = get_object_or_404(
+        Appointment,
+        pk=appointment_id,
+        barber=barber
+    )
+
+    if appointment.status not in ["pending", "confirmed"]:
+        messages.error(request, "This appointment cannot be edited.")
+        return redirect("booking:dashboard")
+
+    if request.method == "POST":
+        date_str = request.POST.get("date")
+        time_str = request.POST.get("time")
+
+        try:
+            new_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+            new_time = datetime.strptime(time_str, "%H:%M").time()
+
+            new_start = timezone.make_aware(
+                datetime.combine(new_date, new_time)
+            )
+
+            with transaction.atomic():
+                locked_barber = Barber.objects.select_for_update().get(
+                    pk=barber.pk
+                )
+
+                locked_appointment = Appointment.objects.select_for_update().get(
+                    pk=appointment.pk,
+                    barber=locked_barber
+                )
+
+                if locked_appointment.status not in ["pending", "confirmed"]:
+                    raise ValidationError("This appointment can no longer be edited.")
+
+                if locked_appointment.start_time <= timezone.now():
+                    raise ValidationError("Past appointments cannot be edited.")
+
+                available_slots = get_available_slots(
+                    locked_barber,
+                    locked_appointment.service,
+                    new_date,
+                    exclude_appointment_id=locked_appointment.pk
+                )
+
+                if new_start not in available_slots:
+                    raise ValidationError(
+                        "That time is unavailable. Please choose another."
+                    )
+
+                locked_appointment.start_time = new_start
+                locked_appointment.save(
+                    update_fields=["start_time", "end_time"]
+                )
+
+            messages.success(request, "Appointment rescheduled!")
+            return redirect("booking:dashboard")
+
+        except (ValueError, TypeError, ValidationError) as error:
+            messages.error(request, f"Unable to reschedule: {error}")
+
+    return render(request, "booking/barber_edit_appointment.html", {
+        "appointment": appointment,
+        "barber": barber,
+    })
+
+
+@login_required
+@require_POST
+def barber_cancel_appointment(request, appointment_id):
+    barber = get_object_or_404(
+        Barber,
+        user=request.user,
+        active=True
+    )
+
+    with transaction.atomic():
+        appointment = get_object_or_404(
+            Appointment.objects.select_for_update(),
+            pk=appointment_id,
+            barber=barber
+        )
+
+        if appointment.status not in ["pending", "confirmed"]:
+            messages.error(
+                request,
+                "This appointment can no longer be cancelled."
+            )
+        elif appointment.start_time <= timezone.now():
+            messages.error(
+                request,
+                "Past appointments cannot be cancelled."
+            )
+        else:
+            appointment.status = "cancelled"
+            appointment.save(update_fields=["status"])
+            messages.success(
+                request,
+                "Appointment cancelled. The time slot is available again."
+            )
+
+    return redirect("booking:dashboard")
+
+@login_required
+def barber_available_times(request, appointment_id):
+    barber = get_object_or_404(
+        Barber,
+        user=request.user
+    )
+
+    appointment = get_object_or_404(
+        Appointment,
+        pk=appointment_id,
+        barber=barber,
+        status__in=["pending", "confirmed"]
+    )
+
+    try:
+        date_string = request.GET.get("date")
+        selected_date = date.fromisoformat(date_string)
+
+        slots = get_available_slots(
+            barber,
+            appointment.service,
+            selected_date,
+            exclude_appointment_id=appointment.pk
+        )
+
+        return JsonResponse({
+            "slots": [
+                {
+                    "value": slot.isoformat(),
+                    "label": timezone.localtime(slot).strftime("%I:%M %p"),
+                }
+                for slot in slots
+            ]
+        })
+
+    except (ValueError, TypeError):
+        return JsonResponse(
+            {"error": "Invalid date."},
+            status=400
+        )

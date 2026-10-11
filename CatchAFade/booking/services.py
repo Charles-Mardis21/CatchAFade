@@ -1,15 +1,22 @@
 from datetime import datetime, timedelta
+
 from django.utils import timezone
-from .models import Availability, Appointment
 from django.db import transaction
 from django.core.exceptions import ValidationError
-from .models import Barber, Service
-from django.db import transaction
-from .sms import send_booking_confirmation
 from django.shortcuts import get_object_or_404
+from django.db import transaction
+
+from .models import (
+    Availability,
+    Appointment,
+    TimeOff,
+    Barber,
+    Service,
+)
+from .sms import send_booking_confirmation
 
 
-def get_available_slots(barber, service, selected_date):
+def get_available_slots(barber, service, selected_date, exclude_appointment_id=None):
     if not barber.active or not service.active:
         return []
 
@@ -40,16 +47,29 @@ def get_available_slots(barber, service, selected_date):
         while current + duration <= end:
             proposed_end = current + duration
 
-            conflict = Appointment.objects.filter(
+            booked_appointments = Appointment.objects.filter(
                 barber=barber,
                 status__in=["pending", "confirmed"],
                 start_time__lt=proposed_end,
                 end_time__gt=current,
-            ).exists()
+            )
 
-            if current > now and not conflict:
+            if exclude_appointment_id is not None:
+                booked_appointments = booked_appointments.exclude(
+                    pk=exclude_appointment_id
+                )
+
+            conflict = booked_appointments.exists()
+
+            time_off_conflict = overlaps_time_off(
+                barber,
+                current,
+                proposed_end
+            )
+
+            if current > now and not conflict and not time_off_conflict:
                 slots.append(current)
-
+            
             current += interval
 
     return sorted(set(slots))
@@ -104,7 +124,7 @@ def create_appointment(
         )
 
     appointment = Appointment.objects.create(
-        sms_consent=sms_consent,
+        sms_consent=False,
         barber=barber,
         service=service,
         customer_name=customer_name.strip(),
@@ -115,10 +135,10 @@ def create_appointment(
         status="confirmed"
     )
 
-    if appointment.sms_consent:
-        transaction.on_commit(
-            lambda: send_booking_confirmation(appointment)
-    )
+    ### if appointment.sms_consent:
+    ###    transaction.on_commit(
+    ###        lambda: send_booking_confirmation(appointment)
+    ###)
 
     return appointment
 
@@ -150,7 +170,8 @@ def reschedule_existing_appointment(token, new_start_time):
     available_slots = get_available_slots(
         barber,
         appointment.service,
-        timezone.localtime(new_start_time).date()
+        timezone.localtime(new_start_time).date(),
+        exclude_appointment_id=appointment.pk
     )
 
     if new_start_time not in available_slots:
@@ -162,3 +183,18 @@ def reschedule_existing_appointment(token, new_start_time):
     appointment.save(update_fields=["start_time", "end_time"])
 
     return appointment
+
+
+
+def overlaps_time_off(barber, start_time, end_time):
+    """
+    Returns True if an appointment overlaps
+    the barber's scheduled time off.
+    """
+    return TimeOff.objects.filter(
+        barber=barber,
+        start_time__lt=end_time,
+        end_time__gt=start_time
+    ).exists()
+
+

@@ -1,57 +1,150 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Cancel Appointment | Catch A Fade</title>
-    <link rel="stylesheet" href="{% static 'booking/booking.css' %}">
+
+    <link
+        rel="stylesheet"
+        href="{% static 'booking/appointment-management.css' %}?v=2"
+    >
 </head>
 <body>
-    <main class="booking-container">
-        <div class="booking-header">
-            <h1>Catch A Fade</h1>
-            <p>Appointment Management</p>
-        </div>
 
-        <section class="booking-section">
-            {% if appointment.status == "cancelled" %}
+    <header class="management-header">
+        <h1>CATCH A FADE</h1>
+        <p>Appointment Management</p>
+    </header>
+
+    <main class="management-container">
+
+        {% if appointment.status == "cancelled" %}
+
+            <div class="management-heading">
                 <h2>Appointment Cancelled</h2>
-                <p>Your appointment has been cancelled.</p>
+                <p>Your cancellation has been processed.</p>
+            </div>
 
-            {% elif cancelled %}
+            <section class="management-card">
+                <div class="success-message">
+                    Your appointment has been cancelled successfully.
+                </div>
+
+                <div class="management-actions">
+                    <a
+                        href="{% url 'booking:book' %}"
+                        class="btn btn-primary"
+                    >
+                        Book Another Appointment
+                    </a>
+                </div>
+            </section>
+
+        {% elif cancelled %}
+
+            <div class="management-heading">
                 <h2>Unable to Cancel</h2>
                 <p>This appointment can no longer be cancelled online.</p>
+            </div>
 
-            {% else %}
+            <section class="management-card">
+                <div class="error-message">
+                    This appointment is no longer eligible for cancellation.
+                </div>
+
+                <div class="management-actions">
+                    <a
+                        href="{% url 'booking:book' %}"
+                        class="btn btn-secondary"
+                    >
+                        Back to Booking
+                    </a>
+                </div>
+            </section>
+
+        {% else %}
+
+            <div class="management-heading">
                 <h2>Cancel Your Appointment</h2>
-
                 <p>Please review your appointment before cancelling.</p>
+            </div>
 
-                <div class="appointment-details">
-                    <p><strong>Barber:</strong> {{ appointment.barber.name }}</p>
-                    <p><strong>Service:</strong> {{ appointment.service.name }}</p>
-                    <p><strong>Date:</strong> {{ appointment.start_time|date:"F j, Y" }}</p>
-                    <p><strong>Time:</strong> {{ appointment.start_time|date:"g:i A" }}</p>
+            <section class="management-card">
+
+                <div class="appointment-summary">
+                    <h3>Appointment Details</h3>
+
+                    <p>
+                        <strong>Barber:</strong>
+                        {{ appointment.barber.name }}
+                    </p>
+
+                    <p>
+                        <strong>Service:</strong>
+                        {{ appointment.service.name }}
+                    </p>
+
+                    <p>
+                        <strong>Date:</strong>
+                        {{ appointment.start_time|date:"F j, Y" }}
+                    </p>
+
+                    <p>
+                        <strong>Time:</strong>
+                        {{ appointment.start_time|date:"g:i A" }}
+                    </p>
                 </div>
 
                 {% if appointment.status == "confirmed" or appointment.status == "pending" %}
+
+                    <p class="warning-text">
+                        Cancelling this appointment will release
+                        your reserved time slot.
+                    </p>
+
                     <form method="post">
                         {% csrf_token %}
-                        <button type="submit" class="submit-button">
-                            Confirm Cancellation
-                        </button>
-                    </form>
-                {% endif %}
-            {% endif %}
 
-            <p>
-                <a href="{% url 'booking:book' %}">
-                    Book Another Appointment
-                </a>
-            </p>
-        </section>
+                        <div class="management-actions">
+                            <button
+                                type="submit"
+                                class="btn btn-danger"
+                            >
+                                Confirm Cancellation
+                            </button>
+
+                            <a
+                                href="{% url 'booking:book' %}"
+                                class="btn btn-secondary"
+                            >
+                                Keep Appointment
+                            </a>
+                        </div>
+                    </form>
+
+                {% else %}
+
+                    <div class="error-message">
+                        This appointment cannot be cancelled online.
+                    </div>
+
+                    <a
+                        href="{% url 'booking:book' %}"
+                        class="btn btn-secondary"
+                    >
+                        Back to Booking
+                    </a>
+
+                {% endif %}
+
+            </section>
+
+        {% endif %}
+
     </main>
+
 </body>
 </html>

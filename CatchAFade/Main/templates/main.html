@@ -8,7 +8,7 @@
 
     <title>Catch A Fade Barbershop</title>
 
-    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=100">
     
 
 </head>
@@ -45,6 +45,34 @@
                     >
                 </div>
 
+                <div class="slide">
+                    <img
+                        src="{% static 'images/shop-4.jpeg' %}"
+                        alt="Fresh fade at Catch A Fade"
+                    >
+                </div>
+
+                <div class="slide">
+                    <img
+                        src="{% static 'images/shop-5.jpeg' %}"
+                        alt="Fresh fade at Catch A Fade"
+                    >
+                </div>
+
+                <div class="slide">
+                    <img
+                        src="{% static 'images/shop-6.jpeg' %}"
+                        alt="Fresh fade at Catch A Fade"
+                    >
+                </div>
+
+                <div class="slide">
+                    <img
+                        src="{% static 'images/shop-7.jpeg' %}"
+                        alt="Fresh fade at Catch A Fade"
+                    >
+                </div>
+
                 <!-- Dark overlay so text stays readable -->
                 <div class="hero-overlay"></div>
 
@@ -60,8 +88,8 @@
                     <h1>LOOK SHARP.<br>FEEL SHARP.</h1>
 
                     <p>
-                        Professional cuts and clean fades in
-                        Walnut, Mississippi.
+                        Professional cuts and clean fades in <br>
+                        Walnut, Mississippi. </br>
                     </p>
 
                     <a href="{% url 'booking:book' %}" class="hero-book-button">
@@ -88,9 +116,7 @@
 
                 <!-- Bottom indicators -->
                 <div class="carousel-dots">
-                    <button class="dot active" aria-label="Slide 1"></button>
-                    <button class="dot" aria-label="Slide 2"></button>
-                    <button class="dot" aria-label="Slide 3"></button>
+                    
                 </div>
 
             </div>

@@ -1,109 +1,156 @@
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Reschedule Appointment | Catch A Fade</title>
-    <link rel="stylesheet" href="{% static 'booking/booking.css' %}">
+
+    <link rel="stylesheet"
+          href="{% static 'booking/appointment-management.css' %}?v=2">
 </head>
 <body>
 
-<main class="booking-container">
+    <header class="management-header">
+        <h1>CATCH A FADE</h1>
+        <p>Appointment Management</p>
+    </header>
 
-    <div class="booking-header">
-        <h1>Catch A Fade</h1>
-        <p>Reschedule Your Appointment</p>
-    </div>
+    <main class="management-container">
 
-    <section class="booking-section">
-
-        <h2>Current Appointment</h2>
-
-        <div class="appointment-details">
-            <p><strong>Barber:</strong> {{ appointment.barber.name }}</p>
-            <p><strong>Service:</strong> {{ appointment.service.name }}</p>
-            <p><strong>Date:</strong> {{ appointment.start_time|date:"F j, Y" }}</p>
-            <p><strong>Time:</strong> {{ appointment.start_time|date:"g:i A" }}</p>
+        <div class="management-heading">
+            <h2>Reschedule Your Appointment</h2>
+            <p>Choose a new date and time that works for you.</p>
         </div>
 
-        {% if error %}
-            <p class="form-error">{{ error }}</p>
+        <section class="management-card">
 
-        {% elif success %}
-            <h2>Appointment Rescheduled!</h2>
-            <p>Your new appointment time has been saved successfully.</p>
+            <div class="appointment-summary">
+                <h3>Current Appointment</h3>
 
-        {% else %}
-
-            <h2>Choose a New Date</h2>
-
-            <form
-                id="reschedule-form"
-                method="post"
-                data-availability-url="{% url 'booking:available_times' %}"
-            >
-                {% csrf_token %}
-
-                <input
-                    type="hidden"
-                    name="barber"
-                    id="barber-id"
-                    value="{{ appointment.barber.id }}"
-                >
-
-                <input
-                    type="hidden"
-                    name="service"
-                    id="service-id"
-                    value="{{ appointment.service.id }}"
-                >
-
-                <label for="new-date">New Appointment Date</label>
-
-                <input
-                    type="date"
-                    id="new-date"
-                    name="new_date"
-                    required
-                >
-
-                <h2>Available Times</h2>
-
-                <p id="slot-message">
-                    Select a date to view available times.
+                <p>
+                    <strong>Barber:</strong>
+                    {{ appointment.barber.name }}
                 </p>
 
-                <div id="time-slots" class="time-slots"></div>
+                <p>
+                    <strong>Service:</strong>
+                    {{ appointment.service.name }}
+                </p>
 
-                <input
-                    type="hidden"
-                    name="start_time"
-                    id="selected-time"
-                    required
+                <p>
+                    <strong>Date:</strong>
+                    {{ appointment.start_time|date:"F j, Y" }}
+                </p>
+
+                <p>
+                    <strong>Time:</strong>
+                    {{ appointment.start_time|date:"g:i A" }}
+                </p>
+            </div>
+
+            {% if error %}
+                <div class="error-message">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            {% if success %}
+                <div class="success-message">
+                    <h3>Appointment Rescheduled!</h3>
+                    <p>
+                        Your new appointment time has been
+                        saved successfully.
+                    </p>
+                </div>
+            {% else %}
+
+                <form
+                    id="reschedule-form"
+                    method="post"
+                    data-availability-url="{% url 'booking:available_times' %}"
                 >
+                    {% csrf_token %}
 
-                <button
-                    type="submit"
-                    class="submit-button"
-                    id="reschedule-button"
+                    <input
+                        type="hidden"
+                        name="barber"
+                        id="barber-id"
+                        value="{{ appointment.barber.id }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="service"
+                        id="service-id"
+                        value="{{ appointment.service.id }}"
+                    >
+
+                    <div class="form-group">
+                        <label for="new-date">
+                            New Appointment Date
+                        </label>
+
+                        <input
+                            type="date"
+                            id="new-date"
+                            name="new_date"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>Available Times</label>
+
+                        <p id="slot-message" class="help-text">
+                            Select a date to view available times.
+                        </p>
+
+                        <div id="time-slots" class="time-slots"></div>
+                    </div>
+
+                    <input
+                        type="hidden"
+                        name="start_time"
+                        id="selected-time"
+                        required
+                    >
+
+                    <div class="management-actions">
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                            id="reschedule-button"
+                        >
+                            Confirm New Appointment →
+                        </button>
+                    </div>
+                </form>
+
+            {% endif %}
+
+            <div class="management-footer">
+                <p>
+                    Need to cancel instead?
+                </p>
+
+                <a
+                    href="{% url 'booking:cancel_appointment' appointment.cancellation_token %}"
+                    class="btn btn-danger"
                 >
-                    Confirm New Appointment →
-                </button>
+                    Cancel Appointment
+                </a>
+            </div>
 
-            </form>
+        </section>
+    </main>
 
-        {% endif %}
+    <script
+        src="{% static 'booking/reschedule.js' %}"
+        defer>
+    </script>
 
-        <p>
-            <a href="{% url 'booking:cancel_appointment' appointment.cancellation_token %}">
-                Cancel Appointment Instead
-            </a>
-        </p>
-
-    </section>
-
-</main>
-<script src="{% static 'booking/reschedule.js' %}" defer></script>
 </body>
 </html>

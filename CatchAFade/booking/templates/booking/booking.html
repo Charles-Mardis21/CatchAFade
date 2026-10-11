@@ -63,6 +63,7 @@
             </div>
         </section>
 
+        
         <section class="booking-section">
             <div class="section-heading">
                 <span>02</span>
@@ -71,23 +72,34 @@
 
             <div class="service-grid">
                 {% for service in services %}
-                <label class="selection-card service-card">
-                    <input type="radio"
-                           name="service"
-                           value="{{ service.id }}"
-                           data-duration="{{ service.duration }}"
-                           required>
-                    <div>
-                        <h3>{{ service.name }}</h3>
-                        <p>{{ service.duration }} minutes</p>
-                    </div>
-                    <strong>${{ service.price }}</strong>
-                </label>
+                    <label class="selection-card service-card">
+                        <input
+                            type="radio"
+                            name="service"
+                            value="{{ service.id }}"
+                            data-duration="{{ service.duration }}"
+                            required
+                        >
+
+                        <div class="service-info">
+                            <h3>{{ service.name }}</h3>
+                            <p>{{ service.duration }} minutes</p>
+                        </div>
+
+                        <strong class="service-price">
+                            ${{ service.price }}
+                        </strong>
+                    </label>
                 {% empty %}
-                <p>No services are available.</p>
+                    <p>No services are available.</p>
                 {% endfor %}
             </div>
+
+            <p class="service-disclaimer">
+                Prices are subject to change with special designs and/or requests.
+            </p>
         </section>
+
 
         <section class="booking-section">
             <div class="section-heading">
@@ -145,20 +157,16 @@
                            placeholder="you@example.com">
                 </label>
 
-                <label class="sms-consent">
-                    <input
-                        type="checkbox"
-                        name="sms_consent"
-                        value="on"
-                    >
-                    <span>
-                        I agree to receive appointment confirmations
-                        and reminders by text from Catch A Fade.
-                        Message and data rates may apply.
-                        Reply STOP to opt out.
-                        Consent is optional.
-                    </span>
-                </label>
+                <div class="sms-notice">
+                    <p>
+                        <strong>Text Confirmations — Coming Soon</strong>
+                    </p>
+                    <p>
+                        SMS appointment confirmations and reminders are currently
+                        in development. Please save your appointment details
+                        after booking.
+                    </p>
+                </div>
             </div>
         </section>
 

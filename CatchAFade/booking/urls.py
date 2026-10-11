@@ -72,4 +72,34 @@ urlpatterns = [
         views.delete_working_hours,
         name="delete_working_hours"
     ),
+    path(
+        "time-off/",
+        views.manage_time_off,
+        name="manage_time_off"
+    ),
+    path(
+        "time-off/add/",
+        views.add_time_off,
+        name="add_time_off"
+    ),
+    path(
+        "time-off/delete/<int:time_off_id>/",
+        views.delete_time_off,
+        name="delete_time_off"
+    ),
+    path(
+        "dashboard/appointments/<int:appointment_id>/edit/",
+        views.barber_edit_appointment,
+        name="barber_edit_appointment"
+    ),
+    path(
+        "dashboard/appointments/<int:appointment_id>/cancel/",
+        views.barber_cancel_appointment,
+        name="barber_cancel_appointment"
+    ),
+    path(
+        "dashboard/appointments/<int:appointment_id>/available-times/",
+        views.barber_available_times,
+        name="barber_available_times"
+    ),
 ]

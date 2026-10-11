@@ -1,6 +1,18 @@
-/* ------------------------------
-   GLOBAL
------------------------------- */
+/* =========================================================
+   CATCH A FADE — MAIN STYLESHEET
+   Organized: Global > Navbar > Hero > Controls > Sections >
+   Footer > Tablet > Mobile > Individual Photo Framing
+   ========================================================= */
+
+/* 01. GLOBAL */
+:root {
+    --navy: #02001f;
+    --navy-dark: #010018;
+    --red: #a20c08;
+    --button-red: #b3120d;
+    --gold: #f5dc73;
+    --white: #ffffff;
+}
 
 * {
     margin: 0;
@@ -8,54 +20,28 @@
     box-sizing: border-box;
 }
 
-html {
-    scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
     font-family: Arial, Helvetica, sans-serif;
-    background: #ffffff;
+    background: var(--white);
     color: #111111;
 }
 
-a {
-    text-decoration: none;
-}
+a { text-decoration: none; }
+button { font-family: inherit; }
 
-button {
-    font-family: inherit;
-}
-
-
-/* ------------------------------
-   COLOR PALETTE
-
-   Navy:  #02001f
-   Red:   #a20c08
-   Gold:  #f5dc73
-   White: #ffffff
------------------------------- */
-
-
-/* ------------------------------
-   NAVBAR
------------------------------- */
-
+/* 02. NAVBAR */
 .navbar {
     height: 90px;
-
     display: flex;
     align-items: center;
-
     padding: 0 6%;
-
-    background: #02001f;
-
+    background: var(--navy);
     position: sticky;
     top: 0;
     z-index: 1000;
-
-    border-bottom: 3px solid #a20c08;
+    border-bottom: 3px solid var(--red);
 }
 
 .nav-logo {
@@ -73,42 +59,27 @@ button {
     display: flex;
     align-items: center;
     gap: 40px;
-
     margin-right: 45px;
 }
 
 .nav-links a {
-    color: #ffffff;
-
+    color: var(--white);
     font-size: 0.85rem;
     font-weight: 700;
-
     letter-spacing: 2px;
-
     transition: color 0.2s ease;
 }
 
-.nav-links a:hover {
-    color: #f5dc73;
-}
-
-
-/* BOOK BUTTON */
+.nav-links a:hover { color: var(--gold); }
 
 .nav-book-button {
-    background: #b3120d;
-    color: #ffffff;
-
+    background: var(--button-red);
+    color: var(--white);
     padding: 16px 30px;
-
     font-weight: 800;
     letter-spacing: 1.5px;
-
-    border: 2px solid #b3120d;
-
-    transition:
-        background 0.2s ease,
-        transform 0.2s ease;
+    border: 2px solid var(--button-red);
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .nav-book-button:hover {
@@ -116,462 +87,503 @@ button {
     transform: translateY(-2px);
 }
 
-
-/* ------------------------------
-   HERO / CAROUSEL
------------------------------- */
-
-.hero {
-    width: 100%;
-}
+/* 03. HERO / CAROUSEL — DESKTOP */
+.hero { width: 100%; }
 
 .carousel {
     position: relative;
-
     width: 100%;
     height: calc(100vh - 90px);
-
     min-height: 650px;
-
     overflow: hidden;
-
-    background: #02001f;
+    background: var(--navy);
 }
-
-
-/* INDIVIDUAL SLIDES */
 
 .slide {
     position: absolute;
-
     inset: 0;
-
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
     opacity: 0;
-
-    transition: opacity 1.2s ease;
+    visibility: hidden;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
 }
 
 .slide.active {
     opacity: 1;
+    visibility: visible;
 }
 
 .slide img {
     width: 100%;
     height: 100%;
-
     object-fit: cover;
+    object-position: center;
+    display: block;
 }
 
+/* Desktop photo framing: adjust these individually.
+   First percentage = horizontal crop, second = vertical crop. */
+   @media (min-width: 769px) {
 
-/* DARK OVERLAY */
+    /* Slide 1 — Long locs */
+    .slide:nth-child(1) img {
+        object-position: 58% 78%;
+        transform: none;
+    }
 
+    /* Slide 2 — Braids */
+    .slide:nth-child(2) img {
+        object-position: 50% 50%;
+        transform: none;
+    }
+
+    /* Slide 3 — Move subject right */
+    .slide:nth-child(3) img {
+        object-position: 15% 50%;
+        transform: none;
+    }
+
+
+    /* Slide 4 — Move right */
+    .slide:nth-child(4) img {
+        object-position: 35% 78%;
+        transform: none;
+    }
+
+    /* Slide 5 — Full haircut on the right */
+    .slide:nth-child(5) img {
+        width: 65%;
+        height: 100%;
+
+        position: absolute;
+        right: 0;
+        top: 0;
+
+        object-fit: cover;
+        object-position: center 50%;
+
+        transform: none;
+
+        -webkit-mask-image: linear-gradient(
+            to right,
+            transparent 0%,
+            black 35%,
+            black 100%
+        );
+
+        mask-image: linear-gradient(
+            to right,
+            transparent 0%,
+            black 35%,
+            black 100%
+        );
+    }
+
+    /* Slide 6 — Move right */
+    .slide:nth-child(6) img {
+        object-position: 35% 50%;
+        transform: none;
+    }
+
+    /* Slide 7 — Slightly down and right */
+    .slide:nth-child(7) img {
+        object-position: 35% 35%;
+        transform: none;
+    }
+}
 .hero-overlay {
     position: absolute;
     inset: 0;
-
-    background:
-        linear-gradient(
-            90deg,
-            rgba(2, 0, 31, 0.90) 0%,
-            rgba(2, 0, 31, 0.62) 45%,
-            rgba(2, 0, 31, 0.15) 100%
-        );
-
     z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(
+        90deg,
+        rgba(2, 0, 31, 0.95) 0%,
+        rgba(2, 0, 31, 0.80) 30%,
+        rgba(2, 0, 31, 0.35) 60%,
+        rgba(2, 0, 31, 0.05) 100%
+    );
 }
-
-
-/* HERO TEXT */
 
 .hero-content {
     position: absolute;
-
     top: 50%;
     left: 10%;
-
     transform: translateY(-50%);
-
     z-index: 3;
-
-    color: #ffffff;
-
+    color: var(--white);
     max-width: 650px;
 }
 
 .hero-logo {
     width: 220px;
-
     margin-bottom: 25px;
 }
 
-.hero-content h1 {
-    font-size: clamp(3rem, 6vw, 6rem);
-
-    line-height: 0.95;
-
-    letter-spacing: -2px;
-
-    margin-bottom: 25px;
+.hero-content {
+    position: absolute;
+    top: 50%;
+    left: 8%;
+    transform: translateY(-50%);
+    z-index: 3;
+    color: #ffffff;
+    max-width: 540px;
 }
 
 .hero-content p {
     font-size: 1.2rem;
-
     line-height: 1.7;
-
     max-width: 520px;
-
     color: #eeeeee;
-
     margin-bottom: 35px;
 }
 
-
-/* HERO BOOK BUTTON */
-
 .hero-book-button {
     display: inline-block;
-
-    background: #b3120d;
-    color: #ffffff;
-
+    background: var(--button-red);
+    color: var(--white);
     padding: 18px 34px;
-
     font-weight: 800;
-
     letter-spacing: 2px;
-
-    border: 2px solid #b3120d;
-
-    transition:
-        background 0.2s ease,
-        transform 0.2s ease;
+    border: 2px solid var(--button-red);
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .hero-book-button:hover {
     background: #d01812;
-
     transform: translateY(-3px);
 }
 
-
-/* ------------------------------
-   CAROUSEL CONTROLS
------------------------------- */
-
+/* 04. CAROUSEL ARROWS AND DOTS */
 .carousel-button {
     position: absolute;
-
     top: 50%;
-
     transform: translateY(-50%);
-
     z-index: 5;
-
     width: 55px;
     height: 75px;
-
     border: none;
-
     background: rgba(2, 0, 31, 0.35);
-
     color: rgba(255, 255, 255, 0.75);
-
     font-size: 2rem;
-
     cursor: pointer;
-
-    transition:
-        background 0.2s ease,
-        color 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 .carousel-button:hover {
     background: rgba(2, 0, 31, 0.7);
-
-    color: #ffffff;
+    color: var(--white);
 }
 
-.previous {
-    left: 20px;
-}
-
-.next {
-    right: 20px;
-}
-
-
-/* DOTS */
+.previous { left: 20px; }
+.next { right: 20px; }
 
 .carousel-dots {
     position: absolute;
-
     bottom: 25px;
     left: 50%;
-
     transform: translateX(-50%);
-
     z-index: 5;
-
     display: flex;
-
     gap: 10px;
 }
 
 .dot {
     width: 10px;
     height: 10px;
-
     border-radius: 50%;
-
     border: 1px solid rgba(255, 255, 255, 0.8);
-
     background: transparent;
-
     cursor: pointer;
 }
 
-.dot.active {
-    background: #ffffff;
-}
+.dot.active { background: var(--white); }
 
-
-/* ------------------------------
-   SECTIONS
------------------------------- */
-
+/* 05. SHARED CONTENT SECTIONS */
 .section-container {
     max-width: 1100px;
-
     margin: 0 auto;
-
     padding: 110px 30px;
-
     text-align: center;
 }
 
 .section-label {
     display: block;
-
-    color: #a20c08;
-
+    color: var(--red);
     font-size: 0.8rem;
-
     font-weight: 800;
-
     letter-spacing: 4px;
-
     margin-bottom: 15px;
 }
 
-.section-label.light {
-    color: #f5dc73;
-}
+.section-label.light { color: var(--gold); }
 
 .section-container h2 {
     font-size: clamp(2.4rem, 5vw, 4rem);
-
     margin-bottom: 20px;
 }
 
 .section-line {
     width: 65px;
     height: 4px;
-
-    background: #a20c08;
-
+    background: var(--red);
     margin: 0 auto 35px;
 }
 
-
-/* ------------------------------
-   ABOUT
------------------------------- */
-
-.about {
-    background: #ffffff;
-}
+/* 06. ABOUT */
+.about { background: var(--white); }
 
 .about p {
     max-width: 760px;
-
     margin: 0 auto 20px;
-
     line-height: 1.8;
-
     color: #555555;
-
     font-size: 1.05rem;
 }
 
 .secondary-button {
     display: inline-block;
-
     margin-top: 25px;
-
     padding: 16px 28px;
-
-    border: 2px solid #02001f;
-
-    color: #02001f;
-
+    border: 2px solid var(--navy);
+    color: var(--navy);
     font-weight: 800;
-
     letter-spacing: 1.5px;
-
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 .secondary-button:hover {
-    background: #02001f;
-
-    color: #ffffff;
+    background: var(--navy);
+    color: var(--white);
 }
 
-
-/* ------------------------------
-   CONTACT
------------------------------- */
-
+/* 07. CONTACT */
 .contact {
-    background: #02001f;
-    color: #ffffff;
+    background: var(--navy);
+    color: var(--white);
 }
 
-.contact .section-line {
-    background: #a20c08;
-}
+.contact .section-line { background: var(--red); }
 
 .contact-grid {
     display: grid;
-
-    grid-template-columns: repeat(3, 1fr);
-
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 50px;
-
     margin: 55px 0;
 }
 
 .contact-item h3 {
-    color: #f5dc73;
-
+    color: var(--gold);
     font-size: 0.8rem;
-
     letter-spacing: 3px;
-
     margin-bottom: 15px;
 }
 
 .contact-item p,
 .contact-item a {
-    color: #ffffff;
-
+    color: var(--white);
     line-height: 1.7;
 }
 
-
-/* ------------------------------
-   FOOTER
------------------------------- */
-
+/* 08. FOOTER */
 footer {
-    background: #010018;
-
+    background: var(--navy-dark);
     color: #888888;
-
     text-align: center;
-
     padding: 45px 20px;
 }
 
 footer img {
     width: 130px;
-
     margin-bottom: 20px;
-
     opacity: 0.85;
 }
 
 footer p {
     font-size: 0.8rem;
-
     letter-spacing: 1px;
 }
 
-
-/* ------------------------------
-   MOBILE
------------------------------- */
-
+/* 09. TABLET — 481px THROUGH 768px (ALSO BASE FOR PHONES) */
 @media (max-width: 768px) {
-
     .navbar {
         height: 75px;
-
         padding: 0 20px;
     }
 
-    .nav-logo {
-        height: 60px;
-    }
-
-    .nav-links {
-        display: none;
-    }
+    .nav-logo { height: 60px; }
+    .nav-links { display: none; }
 
     .nav-book-button {
         padding: 12px 18px;
-
         font-size: 0.75rem;
     }
 
-
     .carousel {
         height: 75vh;
-
         min-height: 550px;
+    }
+
+    .hero-overlay {
+        background: linear-gradient(
+            90deg,
+            rgba(2, 0, 31, 0.85) 0%,
+            rgba(2, 0, 31, 0.55) 55%,
+            rgba(2, 0, 31, 0.20) 100%
+        );
     }
 
     .hero-content {
         left: 8%;
         right: 8%;
+        max-width: 450px;
     }
 
-    .hero-logo {
-        width: 160px;
-    }
+    .hero-logo { width: 150px; }
 
     .hero-content h1 {
-        font-size: 3rem;
+        font-size: clamp(2.5rem, 8vw, 3.5rem);
     }
 
-    .hero-content p {
-        font-size: 1rem;
-    }
+    .hero-content p { font-size: 1rem; }
 
     .carousel-button {
         width: 40px;
         height: 60px;
-
         font-size: 1.5rem;
     }
 
-    .previous {
-        left: 5px;
-    }
+    .previous { left: 5px; }
+    .next { right: 5px; }
 
-    .next {
-        right: 5px;
-    }
-
-
-    .section-container {
-        padding: 80px 25px;
-    }
+    .section-container { padding: 80px 25px; }
 
     .contact-grid {
         grid-template-columns: 1fr;
-
         gap: 35px;
     }
+
+    /* Tablet photo framing. These override desktop positions. */
+    .slide:nth-child(1) img { object-position: 65% 50%; }
+    .slide:nth-child(2) img { object-position: 65% 50%; }
+    .slide:nth-child(3) img { object-position: 65% 50%; }
+    .slide:nth-child(4) img { object-position: 65% 50%; }
+    .slide:nth-child(5) img { object-position: 65% 50%; }
+    .slide:nth-child(6) img { object-position: 65% 50%; }
+    .slide:nth-child(7) img { object-position: 65% 50%; }
+}
+
+/* 10. PHONES — UP TO 480px */
+@media (max-width: 480px) {
+    /* Shorter hero to reduce wasted vertical space.
+       Increase min-height if content overlaps on small phones. */
+    .carousel {
+        height: 68svh;
+        min-height: 520px;
+    }
+
+    /* Keep the haircut visible above the branding. */
+    .hero-overlay {
+        background: linear-gradient(
+            to bottom,
+            rgba(2, 0, 31, 0.05) 0%,
+            rgba(2, 0, 31, 0.10) 30%,
+            rgba(2, 0, 31, 0.65) 60%,
+            rgba(2, 0, 31, 0.95) 100%
+        );
+    }
+
+    .hero-content {
+        top: auto;
+        bottom: 65px;
+        left: 7%;
+        right: 7%;
+        max-width: none;
+        transform: none;
+    }
+
+    /* Navbar already shows the logo on phones. */
+    .hero-content .hero-logo { display: none; }
+
+    .hero-content h1 {
+        font-size: clamp(2rem, 9vw, 3rem);
+        line-height: 1;
+        margin-bottom: 14px;
+    }
+
+    .hero-content p {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 20px;
+    }
+
+    .hero-book-button {
+        padding: 14px 22px;
+        font-size: 0.8rem;
+    }
+
+    .carousel-button {
+        top: 35%;
+        width: 36px;
+        height: 50px;
+        font-size: 1.3rem;
+    }
+
+    .carousel-dots { bottom: 15px; }
+
+    /* MOBILE PHOTO FRAMING — EDIT THESE SEVEN LINES.
+       1st value: horizontal crop; 2nd value: vertical crop.
+       Values are starting points, not guaranteed haircut positions.
+       These affect PHONES ONLY, never desktop or tablet. */
+    /* Slide 1 — Already perfect */
+    .slide:nth-child(1) img {
+        object-position: 90% 50%;
+        transform: scale(1.6) translateY(-25%);
+    }
+
+    /* Slide 2 */
+    .slide:nth-child(2) img {
+        object-position: 80% 50%;
+        transform: scale(1.3) translateY(-12%);
+    }
+
+    /* Slide 3 */
+    .slide:nth-child(3) img {
+        object-position: 40% 50%;
+        transform: none;
+    }
+
+    /* Slide 4 — Move haircut higher without the navy bar */
+    .slide:nth-child(4) img {
+        object-position: 65% 35%;
+        transform: scale(1.3) translateY(-32%);
+        transform-origin: center top;
+    }
+
+    /* Slide 5 — Move haircut higher */
+    .slide:nth-child(5) img {
+        object-position: 20% 35%;
+        transform: scale(1.2) translateY(-8%);
+    }
+
+    /* Slide 6 */
+    .slide:nth-child(6) img {
+        object-position: 65% 50%;
+        transform: scale(1.2) translateY(-8%);
+    }
+
+    /* Slide 7 */
+    .slide:nth-child(7) img {
+        object-position: 70% 35%;
+        transform: none;
+    }
+}
+
+/* 11. SHORT PHONES — PREVENT TEXT/BUTTON CROWDING */
+@media (max-width: 480px) and (max-height: 700px) {
+    .carousel { min-height: 560px; }
+    .hero-content h1 { font-size: clamp(1.85rem, 8vw, 2.5rem); }
+    .hero-content p { margin-bottom: 14px; }
 }

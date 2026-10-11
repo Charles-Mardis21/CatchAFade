@@ -127,6 +127,7 @@ class Appointment(models.Model):
 
         super().save(*args, **kwargs)
 
+
 class TimeOff(models.Model):
     barber = models.ForeignKey(
         Barber,
@@ -136,3 +137,31 @@ class TimeOff(models.Model):
 
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
+
+    reason = models.CharField(
+        max_length=200,
+        blank=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        ordering = ["start_time"]
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+
+        if self.start_time and self.end_time:
+            if self.end_time <= self.start_time:
+                raise ValidationError(
+                    "Time off must end after it starts."
+                )
+
+    def __str__(self):
+        return (
+            f"{self.barber.name}: "
+            f"{self.start_time:%b %d, %Y %I:%M %p} - "
+            f"{self.end_time:%b %d, %Y %I:%M %p}"
+        )
